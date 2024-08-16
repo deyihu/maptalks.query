@@ -5,6 +5,9 @@ let jsts;
 let geojsonRender;
 // const geojsonWriter = new jsts.io.GeoJSONWriter();
 const JSTS_ISNULL = 'jsts namespace is null, please injectJSTS(jsts)';
+const FILTER_PAGESIZE = 40000;
+const SPATIAL_PAGESIZE = 3000;
+
 export function injectJSTS(jstsNameSpace) {
     jsts = jstsNameSpace;
 }
@@ -82,24 +85,20 @@ export class Query {
         if (layer.getGeometries) {
             geos = layer.getGeometries();
             callback(flatGeos(layer, geos));
-            return;
-        }
-        if (layer.getRenderedFeaturesAsync) {
+        } else if (layer.getRenderedFeaturesAsync) {
             layer.getRenderedFeaturesAsync().then(result => {
                 callback(flatGeos(layer, result));
             }).catch(error => {
                 console.error(error);
                 callback(geos);
             });
-            return;
-        }
-        if (layer.getRenderedFeatures) {
+        } else if (layer.getRenderedFeatures) {
             geos = layer.getRenderedFeatures();
             callback(flatGeos(layer, geos));
-            return;
+        } else {
+            console.error('not support current layer:', layer);
+            callback(geos);
         }
-        console.error('not support current layer:', layer);
-        callback(geos);
     }
 
     _getLayersGeos(layers, callback) {
@@ -132,7 +131,7 @@ export class Query {
                 resolve(data);
                 return;
             }
-            const pageSize = 50000;
+            const pageSize = FILTER_PAGESIZE;
             const count = Math.ceil(data.length / pageSize);
             let page = 1;
             const result = [];
@@ -167,9 +166,7 @@ export class Query {
                 reject(new Error('geometry.geoJSON() error', geometry));
                 return;
             }
-            // console.log(queryGeo);
-
-            const pageSize = 3000;
+            const pageSize = SPATIAL_PAGESIZE;
             const count = Math.ceil(data.length / pageSize);
             let page = 1;
             const result = [];
@@ -219,7 +216,6 @@ export class Query {
                         console.error(error);
                         console.error('geo spatial cal:', geo);
                     }
-
                 }
                 page++;
             };
@@ -231,7 +227,7 @@ export class Query {
         });
     }
 
-    _mergeResult(data) {
+    _formatResult(data) {
         const map = new Map();
         for (let i = 0, len = data.length; i < len; i++) {
             const { layer, geo } = data[i];
@@ -263,7 +259,7 @@ export class Query {
             const filterLayers = this._filterLayers(layers);
             this._getLayersGeos(filterLayers, data => {
                 this._filterGeos(data, filter).then(filterData => {
-                    const result = this._mergeResult(filterData);
+                    const result = this._formatResult(filterData);
                     resolve(result);
                 }).catch(error => {
                     reject(error);
@@ -286,7 +282,7 @@ export class Query {
                         reject(new Error(JSTS_ISNULL));
                     } else {
                         this._spatialFilterGeos(list, geometry).then(filterData => {
-                            const result = this._mergeResult(filterData);
+                            const result = this._formatResult(filterData);
                             resolve(result);
                         }).catch(error => {
                             reject(error);
