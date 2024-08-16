@@ -2,11 +2,12 @@
 import { Util, MicroTask, Layer, Geometry } from 'maptalks';
 
 let jsts;
-let geojsonRender;
+let geojsonReader;
 // const geojsonWriter = new jsts.io.GeoJSONWriter();
 const JSTS_ISNULL = 'jsts namespace is null, please injectJSTS(jsts)';
 const FILTER_PAGESIZE = 40000;
 const SPATIAL_PAGESIZE = 3000;
+const OPS = [];
 
 export function injectJSTS(jstsNameSpace) {
     jsts = jstsNameSpace;
@@ -16,35 +17,35 @@ export function injectJSTS(jstsNameSpace) {
 //     return jsts;
 // }
 
-function checkJSTS() {
+function isJSTSAvailable() {
     if (!jsts) {
         console.error(JSTS_ISNULL);
         return false;
     }
-    if (!geojsonRender) {
-        geojsonRender = new jsts.io.GeoJSONReader();
+    if (!geojsonReader) {
+        geojsonReader = new jsts.io.GeoJSONReader();
     }
     return true;
 }
 
-function flatGeos(layer, result) {
+function flatGeos(layer, geos) {
     if (layer.getGeometries) {
-        return result;
+        return geos;
     }
-    const geos = [];
-    const tiles = result;
+    const data = [];
+    const tiles = geos;
     // vt
     for (let i = 0, len = tiles.length; i < len; i++) {
         const features = tiles[i].features || [];
         for (let j = 0, len1 = features.length; j < len1; j++) {
             const feature = features[j].feature;
             if (feature && feature.geometry) {
-                geos.push(feature);
+                data.push(feature);
             }
         }
         // Util.pushIn(geos, features);
     }
-    return geos;
+    return data;
 }
 
 export class Query {
@@ -141,6 +142,9 @@ export class Query {
                 const list = data.slice(startIndex, endIndex);
                 for (let i = 0, len = list.length; i < len; i++) {
                     const { geo, layer } = list[i];
+                    if (!geo) {
+                        continue;
+                    }
                     if (filter.call(this, geo, layer)) {
                         result.push(list[i]);
                     }
@@ -155,21 +159,30 @@ export class Query {
         });
     }
 
-    _spatialFilterGeos(data, geometry) {
+    _spatialFilterGeos(data, geometry, operation) {
         return new Promise((resolve, reject) => {
-            const geoJSON = geometry.toGeoJSON();
-            let queryGeo;
+            let inputGeom;
             try {
-                queryGeo = geojsonRender.read(geoJSON).geometry;
+                const geoJSON = geometry.toGeoJSON();
+                inputGeom = geojsonReader.read(geoJSON).geometry;
             } catch (error) {
                 console.error(error);
                 reject(new Error('geometry.geoJSON() error', geometry));
                 return;
             }
+            const result = [];
+            if (!inputGeom) {
+                resolve(result);
+                return;
+            }
+            if (!inputGeom.isValid()) {
+                reject(new Error('input geometry is not valide:', geometry));
+                return;
+            }
             const pageSize = SPATIAL_PAGESIZE;
             const count = Math.ceil(data.length / pageSize);
             let page = 1;
-            const result = [];
+
             const TEMPFEATURE = {
                 type: 'Feature',
                 geometry: null
@@ -180,7 +193,10 @@ export class Query {
                 const list = data.slice(startIndex, endIndex);
                 for (let i = 0, len = list.length; i < len; i++) {
                     const { geo, layer } = list[i];
-                    let feature, jstsGeo;
+                    if (!geo) {
+                        continue;
+                    }
+                    let feature, geom;
                     try {
                         if (geo.toGeoJSON) {
                             feature = geo.toGeoJSON();
@@ -200,21 +216,21 @@ export class Query {
                         continue;
                     }
                     try {
-                        jstsGeo = geojsonRender.read(feature).geometry;
+                        geom = geojsonReader.read(feature).geometry;
                     } catch (error) {
                         console.error(error);
-                        console.error('geo to jsts geo error:', geo, layer);
+                        console.error('geometry to jsts geo error:', geo, layer);
                     }
-                    if (!jstsGeo) {
+                    if (!geom) {
                         continue;
                     }
                     try {
-                        if (queryGeo.intersects(jstsGeo)) {
+                        if (inputGeom[operation] && inputGeom[operation](geom)) {
                             result.push(list[i]);
                         }
                     } catch (error) {
                         console.error(error);
-                        console.error('geo spatial cal:', geo);
+                        console.error('geo spatial cal:', inputGeom, geom, operation);
                     }
                 }
                 page++;
@@ -270,18 +286,26 @@ export class Query {
 
     spatialQuery(options = {}) {
         return new Promise((resolve, reject) => {
-            const { filter, layers, geometry } = options;
+            const { filter, layers, geometry, op } = options;
             if (!geometry || !(geometry instanceof Geometry)) {
                 reject(new Error('geometry is not maptalks.Geometry'));
+                return;
+            }
+            let operation = op;
+            if (!operation) {
+                operation = Query.intersects;
+            }
+            if (OPS.indexOf(operation) === -1) {
+                reject(new Error('not support the op:', operation));
                 return;
             }
             const filterLayers = this._filterLayers(layers);
             this._getLayersGeos(filterLayers, data => {
                 this._filterGeos(data, filter).then(list => {
-                    if (!checkJSTS()) {
+                    if (!isJSTSAvailable()) {
                         reject(new Error(JSTS_ISNULL));
                     } else {
-                        this._spatialFilterGeos(list, geometry).then(filterData => {
+                        this._spatialFilterGeos(list, geometry, operation).then(filterData => {
                             const result = this._formatResult(filterData);
                             resolve(result);
                         }).catch(error => {
@@ -296,3 +320,13 @@ export class Query {
     }
 
 }
+
+Query.contains = 'contains';
+Query.crosses = 'crosses';
+Query.disjoint = 'disjoint';
+Query.equals = 'equals';
+Query.intersects = 'intersects';
+Query.overlaps = 'overlaps';
+Query.within = 'overlaps';
+
+OPS.push(Query.contains, Query.crosses, Query.disjoint, Query.equals, Query.intersects, Query.overlaps, Query.within);
