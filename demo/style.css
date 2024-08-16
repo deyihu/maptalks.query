@@ -24,13 +24,18 @@ body {
 }
 
 .panel {
-    width: 400px;
+    width: 300px;
     height: 100%;
     max-height: 100%;
-    overflow: scroll;
 
 }
 
+.search-result {
+    padding: 4px;
+    height: calc(100% - 30px);
+    overflow: auto;
+}
+
 .map-container {
-    width: calc(100% - 400px);
+    width: calc(100% - 300px);
 }

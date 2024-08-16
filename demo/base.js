@@ -2,7 +2,7 @@ const maptalks = window.maptalks;
 // eslint-disable-next-line no-unused-vars
 const symbol = {
     markerType: 'ellipse',
-    markerFill: 'black',
+    markerFill: 'green',
     markerWidth: 5,
     markerHeight: 5
 };
@@ -14,6 +14,15 @@ const symbol1 = {
     markerHeight: 5
 };
 
+// eslint-disable-next-line no-unused-vars
+const symbol2 = {
+    polygonFill: 'green'
+};
+const symbol3 = {
+    polygonFill: 'red',
+    polygonOpacity: 0.7
+};
+
 function parseGeo(geo) {
     let cloneGeo;
     if (geo instanceof maptalks.Geometry) {
@@ -23,7 +32,11 @@ function parseGeo(geo) {
         const properties = geo.properties || {};
         cloneGeo.setProperties({ name: properties.name });
     }
-    cloneGeo.setSymbol(symbol1);
+    if (cloneGeo instanceof maptalks.Marker) {
+        cloneGeo.setSymbol(symbol1);
+    } else {
+        cloneGeo.setSymbol(symbol3);
+    }
     return cloneGeo;
 }
 
@@ -47,7 +60,8 @@ function simleFilter() {
 function spatialQuery(geometry) {
     query.spatialQuery({
         geometry,
-        layers: [layer]
+        layers: [layer],
+        op: vm.op
     }).then(showQueryResult).catch(error => {
         console.error(error);
     });
@@ -87,8 +101,15 @@ function clearQuery() {
 var vm = new window.Vue({
     el: '#app',
     data: {
-        keywords: '肯德基',
-        queryResult: []
+        keywords: '建设',
+        queryResult: [],
+        ops: maptalks.Query.OPS.map(op => {
+            return {
+                value: op,
+                label: op
+            };
+        }),
+        op: maptalks.Query.intersects
     },
     watch: {
 
@@ -124,7 +145,7 @@ map1 = new maptalks.Map('map1', {
 });
 // eslint-disable-next-line prefer-const
 debugLayer = new maptalks.VectorLayer('debuglayer', {
-    zIndex: 10
+    zIndex: -1
 }).addTo(map1);
 query = new maptalks.Query(map1);
 

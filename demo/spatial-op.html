@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maps sync control</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
+<script src="../dist/maptalks.query.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<script src="https://unpkg.com/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
+
+<body>
+
+    <div class="container flex">
+        <div class="panel" id="app">
+            <div class="flex">
+                <!-- <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button> -->
+               spatial query op: <select name="pets" id="pet-select" v-model="op">
+                    <option v-for="item in ops" :value="item.value">{{item.label}}</option>
+
+                </select>
+            </div>
+            <div class="search-result">
+                <div v-for="item in queryResult">{{item.name}}</div>
+            </div>
+        </div>
+        <div class="map-container flex">
+            <div class="map" id="map1"></div>
+            <div class="map" id="map2"></div>
+        </div>
+    </div>
+    <script src="./base.js"></script>
+    <script>
+
+        maptalks.injectJSTS(jsts);
+
+        layer = new maptalks.VectorLayer('layer', {
+            forceRenderOnMoving: true,
+            forceRenderOnZooming: true,
+            forceRenderOnRotating: true,
+            progressiveRender: true,
+            progressiveRenderCount: 1000
+        }).addTo(map1);
+
+
+
+        maptalks.GeoJSON.fetch('./waters.geojson').then(geojson => {
+            maptalks.GeoJSON.toGeometryAsync(geojson, geo => {
+                geo.setSymbol(symbol2);
+            }).then(points => {
+                layer.addGeometry(points);
+                initDrawTool();
+            })
+        })
+
+        // const groupGLLayer = new maptalks.GroupGLLayer("gl", [layer], {
+
+        // }).addTo(map1);
+
+
+    </script>
+</body>
+
+</html>

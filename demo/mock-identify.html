@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maps sync control</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
+<script src="../dist/maptalks.query.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<script src="https://unpkg.com/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
+
+<!-- <script type="text/javascript" src="https://unpkg.com/split.js@1.6.5/dist/split.min.js"></script> -->
+
+<body>
+
+    <div class="container flex">
+        <div class="panel" id="app">
+            <div class="flex">
+                <!-- <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button> -->
+                Please Click Map
+            </div>
+            <div class="search-result">
+                <div v-for="item in queryResult">{{item.name}}</div>
+            </div>
+        </div>
+        <div class="map-container flex">
+            <div class="map" id="map1"></div>
+            <div class="map" id="map2"></div>
+        </div>
+    </div>
+    <script src="./base.js"></script>
+    <script>
+
+        maptalks.injectJSTS(jsts);
+
+        const geojsonReader = new jsts.io.GeoJSONReader();
+        const geojsonWriter = new jsts.io.GeoJSONWriter();
+
+        layer = new maptalks.VectorLayer('layer', {
+            forceRenderOnMoving: true,
+            forceRenderOnZooming: true,
+            forceRenderOnRotating: true,
+            progressiveRender: true,
+            progressiveRenderCount: 1000
+        }).addTo(map1);
+
+
+
+        maptalks.GeoJSON.fetch('./pois.geojson').then(geojson => {
+            maptalks.GeoJSON.toGeometryAsync(geojson, geo => {
+                geo.setSymbol(symbol);
+            }).then(points => {
+                layer.addGeometry(points);
+                // initDrawTool();
+            })
+        })
+
+        map1.on('click', e => {
+            console.log(e);
+            clearQuery();
+            const { coordinate, containerPoint } = e;
+            const p1 = containerPoint.add(-5, -5);
+            const p2 = containerPoint.add(5, -5);
+            const p3 = containerPoint.add(5, 5);
+            const p4 = containerPoint.add(-5, 5);
+            const coordinates = [p1, p2, p3, p4].map(p => {
+                return map1.containerPointToCoord(p);
+            })
+            const geometry = new maptalks.Polygon([coordinates])
+            debugLayer.addGeometry(geometry);
+            // resultLayer.addGeometry(param.geometry.copy());
+            spatialQuery(geometry);
+        })
+
+
+
+    </script>
+</body>
+
+</html>
