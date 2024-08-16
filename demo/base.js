@@ -20,9 +20,37 @@ function parseGeo(geo) {
         cloneGeo = geo.copy();
     } else {
         cloneGeo = maptalks.GeoJSON.toGeometry(geo.geometry);
+        const properties = geo.properties || {};
+        cloneGeo.setProperties({ name: properties.name });
     }
     cloneGeo.setSymbol(symbol1);
     return cloneGeo;
+}
+
+function getPropties(geo) {
+    let properties = geo.getPropties ? geo.getPropties() : geo.properties;
+    properties = properties || {};
+    return properties;
+}
+
+function simleFilter() {
+    query.query({
+        filter: (geo, layer) => {
+            const properties = getPropties(geo);
+            const name = properties.name;
+            return name && name.includes(vm.keywords);
+        },
+        layers: [layer]
+    }).then(showQueryResult);
+}
+
+function spatialQuery(geometry) {
+    query.spatialQuery({
+        geometry,
+        layers: [layer]
+    }).then(showQueryResult).catch(error => {
+        console.error(error);
+    });
 }
 
 function showQueryResult(result) {
@@ -39,39 +67,42 @@ function showQueryResult(result) {
             return g1;
         });
         resultLayer.addGeometry(geos);
+        vm.queryResult = geos.map(g => {
+            const properties = getPropties(g);
+            return properties;
+        });
     });
 }
 
 // eslint-disable-next-line prefer-const
 let resultLayer, layer, debugLayer, drawTool, map1, map2, query;
 
+function clearQuery() {
+    debugLayer.clear();
+    resultLayer.clear();
+    vm.queryResult = [];
+}
+
 // eslint-disable-next-line no-var
 var vm = new window.Vue({
     el: '#app',
     data: {
-        keywords: '肯德基'
+        keywords: '肯德基',
+        queryResult: []
     },
     watch: {
 
     },
     methods: {
         clear() {
-            this.keywords = '';
-            resultLayer.clear();
+            // this.keywords = '';
+            clearQuery();
         },
         search() {
             if (!this.keywords) {
                 return;
             }
-            query.query({
-                filter: (geo, layer) => {
-                    let properties = geo.getPropties ? geo.getPropties() : geo.properties;
-                    properties = properties || {};
-                    const name = properties.name;
-                    return name && name.includes(this.keywords);
-                },
-                layers: [layer]
-            }).then(showQueryResult);
+            simleFilter();
         }
     },
     mounted: function () {
@@ -112,15 +143,6 @@ map2 = new maptalks.Map('map2', {
 
 resultLayer = new maptalks.VectorLayer('layer1').addTo(map2);
 
-function spatialQuery(geometry) {
-    query.spatialQuery({
-        geometry,
-        layers: [layer]
-    }).then(showQueryResult).catch(error => {
-        console.error(error);
-    });
-}
-
 // eslint-disable-next-line no-unused-vars
 const mapSyncControl = new maptalks.MapSync([map1, map2]);
 
@@ -140,12 +162,6 @@ function initDrawTool() {
         spatialQuery(param.geometry);
 
     });
-
-    function clear() {
-        debugLayer.clear();
-        resultLayer.clear();
-    }
-
     const items = [
         // 'Point',
         // 'LineString',
@@ -160,7 +176,7 @@ function initDrawTool() {
             item: value,
             click: function () {
                 drawTool.setMode(value).enable();
-                clear();
+                clearQuery();
             }
         };
     });
@@ -178,7 +194,7 @@ function initDrawTool() {
         },
         {
             item: 'Clear',
-            click: clear
+            click: clearQuery
         }
         ]
     }).addTo(map1);

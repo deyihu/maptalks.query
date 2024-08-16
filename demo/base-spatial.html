@@ -3,42 +3,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>maps sync control</title>
-<style type="text/css">
-    html,
-    body {
-        margin: 0px;
-        height: 100%;
-        width: 100%
-    }
-
-    .container {
-        width: 100%;
-        height: 100%;
-
-        /* display: flex;
-        flex-direction: row; */
-
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .map {
-        width: 50%;
-        height: 100%;
-    }
-
-    .panel {
-        width: 400px;
-        height: 100%;
-
-    }
-
-    .map-container {
-        width: calc(100% - 400px);
-    }
-</style>
+<link rel="stylesheet" href="./style.css">
 <link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
 <script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
 <script src="../dist/maptalks.query.js"></script>
@@ -55,6 +20,9 @@
             <div class="flex">
                 <!-- <input type="text" v-model="keywords" /><button @click="search">search</button><button
                     @click="clear">clear</button> -->
+            </div>
+            <div>
+                <div v-for="item in queryResult">{{item.name}}</div>
             </div>
         </div>
         <div class="map-container flex">
