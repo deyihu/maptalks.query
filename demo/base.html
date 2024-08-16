@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maps sync control</title>
+<style type="text/css">
+    html,
+    body {
+        margin: 0px;
+        height: 100%;
+        width: 100%
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+
+        /* display: flex;
+        flex-direction: row; */
+
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .map {
+        width: 50%;
+        height: 100%;
+    }
+
+    .panel {
+        width: 400px;
+        height: 100%;
+
+    }
+
+    .map-container {
+        width: calc(100% - 400px);
+    }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
+<script src="../dist/maptalks.query.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<script src="https://unpkg.com/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+
+<!-- <script type="text/javascript" src="https://unpkg.com/split.js@1.6.5/dist/split.min.js"></script> -->
+
+<body>
+
+    <div class="container flex">
+        <div class="panel" id="app">
+            <div class="flex">
+                <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button>
+            </div>
+        </div>
+        <div class="map-container flex">
+            <div class="map" id="map1"></div>
+            <div class="map" id="map2"></div>
+        </div>
+    </div>
+    <script src="./base.js"></script>
+    <script>
+
+
+        layer = new maptalks.VectorLayer('layer', {
+            forceRenderOnMoving: true,
+            forceRenderOnZooming: true,
+            forceRenderOnRotating: true,
+            progressiveRender: true,
+            progressiveRenderCount: 1000
+        }).addTo(map1);
+
+
+
+        maptalks.GeoJSON.fetch('./pois.geojson').then(geojson => {
+            maptalks.GeoJSON.toGeometryAsync(geojson, geo => {
+                geo.setSymbol(symbol);
+            }).then(points => {
+                layer.addGeometry(points);
+            })
+        })
+
+    </script>
+</body>
+
+</html>
