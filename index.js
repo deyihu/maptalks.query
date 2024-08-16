@@ -327,6 +327,7 @@ Query.disjoint = 'disjoint';
 Query.equals = 'equals';
 Query.intersects = 'intersects';
 Query.overlaps = 'overlaps';
-Query.within = 'overlaps';
+Query.within = 'within';
 
 OPS.push(Query.contains, Query.crosses, Query.disjoint, Query.equals, Query.intersects, Query.overlaps, Query.within);
+Query.OPS = OPS;
