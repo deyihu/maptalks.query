@@ -9,6 +9,7 @@
 <script src="../dist/maptalks.query.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
 <script src="https://unpkg.com/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
 
 <!-- <script type="text/javascript" src="https://unpkg.com/split.js@1.6.5/dist/split.min.js"></script> -->
 
@@ -17,8 +18,8 @@
     <div class="container flex">
         <div class="panel" id="app">
             <div class="flex">
-                <input type="text" v-model="keywords" /><button @click="search">search</button><button
-                    @click="clear">clear</button>
+                <!-- <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button> -->
             </div>
             <div class="search-result">
                 <div v-for="item in queryResult">{{item.name}}</div>
@@ -32,6 +33,7 @@
     <script src="./base.js"></script>
     <script>
 
+        maptalks.injectJSTS(jsts);
 
         layer = new maptalks.VectorLayer('layer', {
             forceRenderOnMoving: true,
@@ -48,8 +50,47 @@
                 geo.setSymbol(symbol);
             }).then(points => {
                 layer.addGeometry(points);
+                initDrawTool();
+                map1.setView({
+                    "center": [120.59842871, 31.28752701], "zoom": 12.492788189562274, "pitch": 0, "bearing": 0
+                })
             })
         })
+
+        const style = {
+            style: [{
+                name: 'area-fill',
+                filter: true,
+                renderPlugin: {
+                    dataConfig: {
+                        type: "line"
+                    },
+                    sceneConfig: {},
+                    type: "line"
+                },
+                symbol: {
+                    lineColor: 'black'
+                }
+            },
+
+            ]
+        };
+
+        layer1 = new maptalks.GeoJSONVectorTileLayer("geo", {
+            style,
+            features: true,
+            pickingGeometry: true,
+            //默认设置空的数据源
+            data: './roads.geojson'
+        });
+
+        // layer.on("dataload", (e) => {
+        //     initDrawTool();
+        // });
+
+        const groupGLLayer = new maptalks.GroupGLLayer("gl", [layer1], {
+
+        }).addTo(map1);
 
     </script>
 </body>

@@ -16,12 +16,15 @@ const symbol1 = {
 
 // eslint-disable-next-line no-unused-vars
 const symbol2 = {
-    polygonFill: 'green'
+    polygonFill: 'green',
+    polygonOpacity: 0.7
 };
 const symbol3 = {
     polygonFill: 'red',
     polygonOpacity: 0.7
 };
+// eslint-disable-next-line prefer-const
+let resultLayer, layer, layer1, debugLayer, drawTool, map1, map2, query;
 
 function parseGeo(geo) {
     let cloneGeo;
@@ -53,14 +56,14 @@ function simleFilter() {
             const name = properties.name;
             return name && name.includes(vm.keywords);
         },
-        layers: [layer]
+        layers: [layer, layer1]
     }).then(showQueryResult);
 }
 
 function spatialQuery(geometry) {
     query.spatialQuery({
         geometry,
-        layers: [layer],
+        layers: [layer, layer1],
         op: vm.op
     }).then(showQueryResult).catch(error => {
         console.error(error);
@@ -68,14 +71,14 @@ function spatialQuery(geometry) {
 }
 
 function showQueryResult(result) {
-    console.log(result);
+    console.log('query result:', result);
     resultLayer.clear();
     debugLayer.getGeometries().forEach(g => {
         resultLayer.addGeometry(g.copy());
     });
     result.forEach(item => {
-        const { layer, geometries } = item;
-        console.log(layer);
+        const { geometries } = item;
+        // console.log(layer);
         const geos = geometries.map(g => {
             const g1 = parseGeo(g);
             return g1;
@@ -87,9 +90,6 @@ function showQueryResult(result) {
         });
     });
 }
-
-// eslint-disable-next-line prefer-const
-let resultLayer, layer, debugLayer, drawTool, map1, map2, query;
 
 function clearQuery() {
     debugLayer.clear();
@@ -131,12 +131,12 @@ var vm = new window.Vue({
     }
 });
 
+const mapView = {
+    'center': [120.54069005, 31.14989446], 'zoom': 9.49995108663881, 'pitch': 0, 'bearing': 0
+};
 // eslint-disable-next-line prefer-const
 map1 = new maptalks.Map('map1', {
-    'center': [120.7899505, 31.16928532],
-    'zoom': 9.49995108663881,
-    'pitch': 0,
-    'bearing': 0,
+   ...mapView,
     baseLayer: new maptalks.TileLayer('base', {
         urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         subdomains: ['a', 'b', 'c', 'd'],
@@ -151,10 +151,7 @@ query = new maptalks.Query(map1);
 
 // eslint-disable-next-line prefer-const
 map2 = new maptalks.Map('map2', {
-    'center': [120.7899505, 31.16928532],
-    'zoom': 9.49995108663881,
-    'pitch': 0,
-    'bearing': 0,
+    ...mapView,
     baseLayer: new maptalks.TileLayer('base', {
         urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         subdomains: ['a', 'b', 'c', 'd'],
@@ -177,7 +174,7 @@ function initDrawTool() {
         .disable();
 
     drawTool.on('drawend', function (param) {
-        console.info(param.geometry);
+        // console.info(param.geometry);
         debugLayer.addGeometry(param.geometry);
         // resultLayer.addGeometry(param.geometry.copy());
         spatialQuery(param.geometry);

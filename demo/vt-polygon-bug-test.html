@@ -80,11 +80,12 @@
             features: true,
             pickingGeometry: true,
             //默认设置空的数据源
-            data: './waters.geojson'
+            data: './buildings.geojson'
         });
 
         layer.on("dataload", (e) => {
             initDrawTool();
+            map1.setView({"center":[120.58888553,31.30010602],"zoom":14.076270034140762,"pitch":0,"bearing":0})
         });
 
         const groupGLLayer = new maptalks.GroupGLLayer("gl", [layer], {
