@@ -1,22 +1,15 @@
 # maptalks.query
 
 [maptalks](https://github.com/maptalks/maptalks.js) layers data query tool
-*   Request [maptalks gl](https://www.npmjs.com/package/maptalks-gl) version>0.98.0
-* Spatial Query rely on [jsts](https://github.com/bjornharrtell/jsts)
-
-```js
-import * as jsts from 'jsts';
-import {
-    injectJSTS
-} from 'maptalks.query';
-injectJSTS(jsts);
-```
+*  Request [maptalks-gl](https://www.npmjs.com/package/maptalks-gl) version>0.98.0
+*  Spatial Query rely on [jsts](https://github.com/bjornharrtell/jsts)
+    
 
 ## Features
 
-* support simple data filter(such as keyword filter)
+* support simple data filter. such as keyword query 
 * support spatial query
-* support laeyrs:
+* support layers:
   + VectorLayer
   + PointLayer
   + LineStringLayer
@@ -25,7 +18,9 @@ injectJSTS(jsts);
   + GeoJSONVectorTileLayer
   + ...
 
-## Exmaples
+* Time slicing to solve the problem of large data volume lag
+
+## Examples
 
 * simple data filter
 * simple spatial query
@@ -48,7 +43,7 @@ npm i maptalks.query
 ## CDN
 
 ```html
-
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
 ```
 
 ## API
@@ -70,7 +65,7 @@ injectJSTS(jsts);
 
 layers query tool Class
 
-#### constructor(map, options)
+#### `constructor(map, options)`
 
 ```js
  new Query(map, options)
@@ -81,7 +76,7 @@ layers query tool Class
   + `options.log`: Whether to output logs when calculation errors occur
 
 ```js
- new Query(map, {
+ const query = new Query(map, {
      log: true
  })
 ```
@@ -138,7 +133,7 @@ query.query({
     filter: (geo, layer) => {
         const properties = getPropties(geo);
         const name = properties.name;
-        //mock simple keywords query
+        //mock simple keyword query
         return name && name.includes('hello world');
     },
     layers: [layer, layer1, ...otherlayers]
@@ -169,6 +164,7 @@ query.query({
     - Query.within
 
 ```js
+
 injectJSTS(jsts);
 
 const polygon = new Polygon([...]);
