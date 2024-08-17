@@ -331,6 +331,12 @@ export class Query {
         });
     }
 
+    dispose() {
+        delete this.map;
+        delete this.options;
+        return this;
+    }
+
 }
 
 Query.contains = 'contains';
