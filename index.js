@@ -39,7 +39,7 @@ function flatGeos(layer, geos) {
         const features = tiles[i].features || [];
         for (let j = 0, len1 = features.length; j < len1; j++) {
             const feature = features[j].feature;
-            if (feature && feature.geometry) {
+            if (feature) {
                 data.push(feature);
             }
         }
@@ -49,11 +49,13 @@ function flatGeos(layer, geos) {
 }
 
 export class Query {
-    constructor(map) {
+    constructor(map, options = {}) {
         this.map = map;
+        this.options = Object.assign({}, { log: true }, options);
     }
 
     _filterLayers(layers) {
+
         if (!this.map) {
             console.error('not find map');
             return [];
@@ -73,7 +75,7 @@ export class Query {
             });
         }
         return layers.filter(layer => {
-            return !!(layer.getGeometries || layer.getRenderedFeatures || layer.getRenderedFeaturesAsync);
+            return layer && !!(layer.getGeometries || layer.getRenderedFeatures || layer.getRenderedFeaturesAsync);
         });
     }
 
@@ -97,7 +99,7 @@ export class Query {
             geos = layer.getRenderedFeatures();
             callback(flatGeos(layer, geos));
         } else {
-            console.error('not support current layer:', layer);
+            console.error('current layer type not support:', layer);
             callback(geos);
         }
     }
@@ -162,6 +164,7 @@ export class Query {
     _spatialFilterGeos(data, geometry, operation) {
         return new Promise((resolve, reject) => {
             let inputGeom;
+            const log = this.options.log;
             try {
                 const geoJSON = geometry.toGeoJSON();
                 inputGeom = geojsonReader.read(geoJSON).geometry;
@@ -187,6 +190,7 @@ export class Query {
                 type: 'Feature',
                 geometry: null
             };
+            const dirtyData = [];
             const run = () => {
                 const startIndex = (page - 1) * pageSize,
                     endIndex = page * pageSize;
@@ -205,12 +209,17 @@ export class Query {
                             feature = TEMPFEATURE;
                         }
                         if (!feature) {
-                            console.error('not support geo type:', geo, layer);
+                            dirtyData.push(geo);
+                            log && console.error('not support geo type:', geo, layer);
+                            continue;
+                        }
+                        if (!feature.geometry || !feature.geometry.type || !feature.geometry.coordinates) {
+                            dirtyData.push(geo);
                             continue;
                         }
                     } catch (error) {
-                        console.error(error);
-                        console.error('geo to geojson error:', geo, layer);
+                        log && console.error(error);
+                        log && console.error('geo to geojson error:', geo, layer);
                     }
                     if (!feature) {
                         continue;
@@ -218,8 +227,8 @@ export class Query {
                     try {
                         geom = geojsonReader.read(feature).geometry;
                     } catch (error) {
-                        console.error(error);
-                        console.error('geometry to jsts geo error:', geo, layer);
+                        log && console.error(error);
+                        log && console.error('geometry to jsts geo error:', geo, layer);
                     }
                     if (!geom) {
                         continue;
@@ -229,13 +238,16 @@ export class Query {
                             result.push(list[i]);
                         }
                     } catch (error) {
-                        console.error(error);
-                        console.error('geo spatial cal:', inputGeom, geom, operation);
+                        log && console.error(error);
+                        log && console.error('geo spatial cal:', inputGeom, geom, operation);
                     }
                 }
                 page++;
             };
             MicroTask.runTaskAsync({ run, count }).then(() => {
+                if (dirtyData.length) {
+                    console.error('has dirty data:', dirtyData);
+                }
                 resolve(result);
             }).catch(error => {
                 reject(error);
