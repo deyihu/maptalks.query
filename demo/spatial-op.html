@@ -5,7 +5,7 @@
 <title>maps sync control</title>
 <link rel="stylesheet" href="./style.css">
 <link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
+<script type="text/javascript" src="http://localhost/gl-layers/packages/maptalks-gl/dist/maptalks-gl.js"></script>
 <script src="../dist/maptalks.query.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
 <script src="https://unpkg.com/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
@@ -24,7 +24,7 @@
                 </select>
             </div>
             <div class="search-result">
-                <div v-for="item in queryResult">{{item.name}}</div>
+                <div v-for="(item,index) in queryResult">{{index+1}}.{{item.name}}</div>
             </div>
         </div>
         <div class="map-container flex">

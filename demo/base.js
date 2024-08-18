@@ -32,7 +32,7 @@ function parseGeo(geo) {
         cloneGeo = geo.copy();
     } else {
         cloneGeo = maptalks.GeoJSON.toGeometry(geo.geometry);
-        const properties = geo.properties || {};
+        const properties = getPropties(geo);
         cloneGeo.setProperties({ name: properties.name });
     }
     if (cloneGeo instanceof maptalks.Marker) {
@@ -46,6 +46,9 @@ function parseGeo(geo) {
 function getPropties(geo) {
     let properties = geo.getPropties ? geo.getPropties() : geo.properties;
     properties = properties || {};
+    if (properties.__original_properties) {
+        return properties.__original_properties;
+    }
     return properties;
 }
 
@@ -136,7 +139,7 @@ const mapView = {
 };
 // eslint-disable-next-line prefer-const
 map1 = new maptalks.Map('map1', {
-   ...mapView,
+    ...mapView,
     baseLayer: new maptalks.TileLayer('base', {
         urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         subdomains: ['a', 'b', 'c', 'd'],
