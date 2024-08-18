@@ -22,14 +22,14 @@
 
 ## Examples
 
-* simple data filter
-* simple spatial query
-* vt data filter
-* vt spatial query
-* Spatial query operator
-* buffer query 
-* multi layers query
-* mock map identify
+* [simple data filter](https://deyihu.github.io/maptalks.query/demo/base.html)
+* [simple spatial query](https://deyihu.github.io/maptalks.query/demo/base-spatial.html)
+* [vt data filter](https://deyihu.github.io/maptalks.query/demo/vt.html)
+* [vt spatial query](https://deyihu.github.io/maptalks.query/demo/vt-spatial.html)
+* [spatial query operator](https://deyihu.github.io/maptalks.query/demo/spatial-op.html)
+* [buffer query](https://deyihu.github.io/maptalks.query/demo/buffer.html)
+* [multi layers query](https://deyihu.github.io/maptalks.query/demo/mutl-layer.html)
+* [mock map identify](https://deyihu.github.io/maptalks.query/demo/mock-identify.html)
 
 ## Install
 
@@ -50,7 +50,7 @@ npm i maptalks.query
 
 ### `injectJSTS(jsts)`
 
-Inject jsts namespace. If you need space query, this is necessary
+Inject jsts namespace. If you need spatial query, this is necessary
 
 ```js
 import * as jsts from 'jsts';
@@ -145,7 +145,7 @@ query.query({
 });
 ```
 
-* `spatialQuery(options)` Geometric space query . return `Promise`
+* `spatialQuery(options)` Geometric spatial query . return `Promise`
 
   + `options.geometry`: Input query geometry, maptalks. Polygon/maptalks. Circle/maptalks.
   Rectangle...
@@ -153,7 +153,6 @@ query.query({
   + `options.layers`: The layer to be queried, if empty, will query all layers on the map 
   + `options.op` Geometric Shape Relationship Query Operation, default value is ` Query.intersects`  
     op support list:
-
     - Query.contains
     - Query.crosses
     - Query.disjoint
