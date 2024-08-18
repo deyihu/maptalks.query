@@ -44,6 +44,10 @@ npm i maptalks.query
 
 ```html
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maptalks.query/dist/maptalks.query.js"></script>
+<!-- if need spatial query -->
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
+
 ```
 
 ## API
