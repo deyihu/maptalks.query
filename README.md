@@ -1,7 +1,7 @@
 # maptalks.query
 
 [maptalks](https://github.com/maptalks/maptalks.js) layers data query tool
-*  Request [maptalks-gl](https://www.npmjs.com/package/maptalks-gl) version>0.98.0
+*  Request [maptalks-gl](https://github.com/maptalks/maptalks-gl-layers) version>0.98.0
 *  Spatial Query rely on [jsts](https://github.com/bjornharrtell/jsts)
     
 
