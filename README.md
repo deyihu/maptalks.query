@@ -1,7 +1,7 @@
 # maptalks.query
 
 [maptalks](https://github.com/maptalks/maptalks.js) layers data query tool
-*  Request [maptalks-gl](https://github.com/maptalks/maptalks-gl-layers) version>0.98.0
+*  Request [maptalks-gl](https://github.com/maptalks/maptalks-gl-layers) version>0.98.0,current version 0.98.0 has a bug  [vt _convertGeometry](https://github.com/maptalks/issues/issues/717) when transform vt point to geojson(polygon)
 *  Spatial Query rely on [jsts](https://github.com/bjornharrtell/jsts)
     
 
