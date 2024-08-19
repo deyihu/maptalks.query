@@ -1,7 +1,7 @@
 # maptalks.query
 
 [maptalks](https://github.com/maptalks/maptalks.js) layers data query tool
-*  Request [maptalks-gl](https://github.com/maptalks/maptalks-gl-layers) version>0.98.0,current version 0.98.0 has a bug  [vt _convertGeometry](https://github.com/maptalks/issues/issues/717) when transform vt point to geojson(polygon)
+*  Request [maptalks-gl](https://github.com/maptalks/maptalks-gl-layers) version>0.98.0, current version 0.98.0 has a bug  [vt _convertGeometry](https://github.com/maptalks/issues/issues/717) when transform vt point to geojson(polygon)
 *  Spatial Query rely on [jsts](https://github.com/bjornharrtell/jsts)
     
 
@@ -47,7 +47,6 @@ npm i maptalks.query
 <script src="https://cdn.jsdelivr.net/npm/maptalks.query/dist/maptalks.query.js"></script>
 <!-- if need spatial query -->
 <script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
-
 ```
 
 ## API
@@ -130,6 +129,9 @@ const query = new Query(map, {
 function getPropties(geo) {
     let properties = geo.getPropties ? geo.getPropties() : geo.properties;
     properties = properties || {};
+    if (properties.__original_properties) {
+        return properties.__original_properties;
+    }
     return properties;
 }
 
@@ -157,6 +159,7 @@ query.query({
   + `options.layers`: The layer to be queried, if empty, will query all layers on the map 
   + `options.op` Geometric Shape Relationship Query Operation, default value is ` Query.intersects`  
     op support list:
+
     - Query.contains
     - Query.crosses
     - Query.disjoint
@@ -167,7 +170,6 @@ query.query({
     - Query.within
 
 ```js
-
 injectJSTS(jsts);
 
 const polygon = new Polygon([...]);
