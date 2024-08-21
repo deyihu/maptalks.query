@@ -34,17 +34,28 @@ function flatGeos(layer, geos) {
     }
     const data = [];
     const tiles = geos;
+    let tempMap = new Map();
     // vt
     for (let i = 0, len = tiles.length; i < len; i++) {
         const features = tiles[i].features || [];
         for (let j = 0, len1 = features.length; j < len1; j++) {
             const feature = features[j].feature;
             if (feature) {
+                const { id, layer } = feature;
+                if (id === 0 || id) {
+                    const key = `${layer}_${id}`;
+                    if (tempMap.has(key)) {
+                        continue;
+                    }
+                    tempMap.set(key, 1);
+                }
                 data.push(feature);
             }
         }
         // Util.pushIn(geos, features);
     }
+    tempMap.clear();
+    tempMap = null;
     return data;
 }
 
