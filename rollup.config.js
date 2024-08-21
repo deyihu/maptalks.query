@@ -29,7 +29,7 @@ function getEntry() {
     return path.join(__dirname, './index.js');
 }
 
-export default [
+const bundles = [
     {
         input: getEntry(),
         external: external,
@@ -74,3 +74,7 @@ export default [
     }
 
 ];
+
+const filterBundles = product ? bundles : bundles.slice(0, 1);
+
+export default filterBundles;
