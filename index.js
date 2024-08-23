@@ -28,6 +28,41 @@ function isJSTSAvailable() {
     return true;
 }
 
+function checkRings(feature) {
+    const { geometry } = feature;
+    if (!geometry) {
+        return;
+    }
+    const { type, coordinates } = geometry;
+    if (!type || type.indexOf('Polygon') === -1) {
+        return;
+    }
+    const checkRing = (ring) => {
+        const len = ring.length;
+        const first = ring[0], last = ring[len - 1];
+        if (!first || !last) {
+            return;
+        }
+        const [x1, y1] = first;
+        const [x2, y2] = last;
+        if (x1 !== x2 || y1 !== y2) {
+            ring.push(first);
+        }
+    };
+    let polygons = coordinates;
+    if (type === 'Polygon') {
+        polygons = [coordinates];
+    }
+    for (let i = 0, len = polygons.length; i < len; i++) {
+        const polygon = polygons[i];
+        for (let j = 0, len1 = polygon.length; j < len1; j++) {
+            const ring = polygon[j];
+            checkRing(ring);
+        }
+    }
+
+}
+
 function flatGeos(layer, geos) {
     if (layer.getGeometries) {
         return geos;
@@ -236,6 +271,7 @@ export class Query {
                         continue;
                     }
                     try {
+                        checkRings(feature);
                         geom = geojsonReader.read(feature).geometry;
                     } catch (error) {
                         log && console.error(error);
