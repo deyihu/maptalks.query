@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maps sync control</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maptalks.query/dist/maptalks.query.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+<script type="text/javascript"
+    src="https://unpkg.com/maptalks.tileclusterlayer@latest/dist/maptalks.tileclusterlayer.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/split.js@1.6.5/dist/split.min.js"></script> -->
+
+<body>
+
+    <div class="container flex">
+        <div class="panel" id="app">
+            <div class="flex">
+                <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button>
+            </div>
+            <div class="search-result">
+                <div v-for="(item,index) in queryResult">{{index+1}}.{{item.name}}</div>
+            </div>
+        </div>
+        <div class="map-container flex">
+            <div class="map" id="map1"></div>
+            <div class="map" id="map2"></div>
+        </div>
+    </div>
+    <script src="./base.js"></script>
+    <script>
+
+        maptalks.injectJSTS(jsts);
+        function getClusterMarkerSymbol(count) {
+            const symbol = {
+                // markerType: 'ellipse',
+                // markerWidth: 65,
+                // markerHeight: 65,
+                // markerFill: '#fff',
+                // markerLineWidth: 0,
+                // markerFillOpacity: 1,
+                // markerOpacity: 1,
+                markerFile: './marker-case-clusterer1.png',
+                markerVerticalAlignment: 'middle',
+                textSize: 15,
+                textName: count,
+                textHaloFill: '#000',
+                textHaloRadius: 1.2,
+                textFill: '#fff'
+            };
+            if (count > 5000) {
+                symbol.markerFile = './marker-case-clusterer3.png';
+            } else if (count > 1000) {
+                symbol.markerFile = './marker-case-clusterer2.png';
+            };
+            return symbol;
+        }
+
+        layer = new maptalks.TileClusterLayer('layer', {
+            maxClusterZoom: 18,
+            minClusterCount: 10,
+            clusterDispersion: true,
+            dispersionCount: 500,
+            dispersionDuration: 300,
+            clusterMarkerSymbol: getClusterMarkerSymbol,
+            // markerEvents: {
+            //     'click': mouseClick,
+            //     'mouseover': mouseOver,
+            //     'mouseout': mouseOut
+            // }
+        });
+        layer.addTo(map1);
+
+
+
+
+        maptalks.GeoJSON.fetch('./pois.geojson').then(geojson => {
+            layer.setData(geojson);
+            initDrawTool();
+            // maptalks.GeoJSON.toGeometryAsync(geojson, geo => {
+            //     geo.setSymbol(symbol);
+            // }).then(points => {
+            //     layer.addGeometry(points);
+            // })
+        })
+
+    </script>
+</body>
+
+</html>

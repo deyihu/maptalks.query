@@ -30,6 +30,7 @@
 * [buffer query](https://deyihu.github.io/maptalks.query/demo/buffer.html)
 * [multi layers query](https://deyihu.github.io/maptalks.query/demo/mutl-layer.html)
 * [mock map identify](https://deyihu.github.io/maptalks.query/demo/mock-identify.html)
+* [tileclusterlayer query](https://deyihu.github.io/maptalks.query/demo/tileclusterlayer.html)
 
 ## Install
 
