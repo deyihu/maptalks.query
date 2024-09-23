@@ -20,8 +20,8 @@
     <div class="container flex">
         <div class="panel" id="app">
             <div class="flex">
-                <input type="text" v-model="keywords" /><button @click="search">search</button><button
-                    @click="clear">clear</button>
+                <!-- <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button> -->
             </div>
             <div class="search-result">
                 <div v-for="(item,index) in queryResult">{{index+1}}.{{item.name}}</div>
