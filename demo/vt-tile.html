@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maps sync control</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks-gl/dist/maptalks-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maptalks.query/dist/maptalks.query.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maptalks.mapsync/dist/maptalks.mapsync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsts@2.11.3/dist/jsts.min.js"></script>
+
+<body>
+
+    <div class="container flex">
+        <div class="panel" id="app">
+            <div class="flex">
+                <input type="text" v-model="keywords" /><button @click="search">search</button><button
+                    @click="clear">clear</button>
+            </div>
+            <div class="search-result">
+                <div v-for="(item,index) in queryResult">{{index+1}}.{{item.name}}</div>
+            </div>
+        </div>
+        <div class="map-container flex">
+            <div class="map" id="map1"></div>
+            <div class="map" id="map2"></div>
+        </div>
+    </div>
+    <script src="./base.js"></script>
+    <script>
+        maptalks.injectJSTS(jsts);
+
+        const style = [{
+            // Only data with building layer and Polygon type are displayed
+            // Please refer to the specific description of filter:http://doc.maptalks.com/docs/style/filter/feature-filter/
+            filter: ["all", ["==", "$layer", "building"],
+                ["==", "$type", "Polygon"]
+            ],
+            renderPlugin: {
+                dataConfig: {
+                    type: "fill"
+                },
+                type: "fill"
+            },
+            symbol: {
+                polygonFill: "#577570"
+            }
+        }];
+
+        layer = new maptalks.VectorTileLayer("vt", {
+            urlTemplate: "https://tile.maptalks.com/test/planet-single/{z}/{x}/{y}.mvt",
+            // debug: true,
+            features: true,
+            pickingGeometry: true,
+            style
+        });
+
+        initDrawTool();
+
+        const groupGLLayer = new maptalks.GroupGLLayer("gl", [layer], {
+
+        }).addTo(map1);
+
+        map1.setView({
+            center: [-74.00912099912109, 40.71107610933129],
+            zoom: 17,
+            pitch: 60,
+        })
+
+
+    </script>
+</body>
+
+</html>

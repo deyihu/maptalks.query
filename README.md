@@ -24,8 +24,9 @@
 
 * [simple data filter](https://maptalks.org/maptalks.query/demo/base.html)
 * [simple spatial query](https://maptalks.org/maptalks.query/demo/base-spatial.html)
-* [vt data filter](https://maptalks.org/maptalks.query/demo/vt.html)
-* [vt spatial query](https://maptalks.org/maptalks.query/demo/vt-spatial.html)
+* [geojsonvt data filter](https://maptalks.org/maptalks.query/demo/vt.html)
+* [geojsonvt spatial query](https://maptalks.org/maptalks.query/demo/vt-spatial.html)
+* [vt tile spatial query](https://maptalks.org/maptalks.query/demo/vt-tile.html)
 * [spatial query operator](https://maptalks.org/maptalks.query/demo/spatial-op.html)
 * [buffer query](https://maptalks.org/maptalks.query/demo/buffer.html)
 * [multi layers query](https://maptalks.org/maptalks.query/demo/mutl-layer.html)
